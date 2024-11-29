@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>广东建院请假详情</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        /* 顶部固定栏样式 */
+        .header-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background-color: #007bff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .header-bar .left,
+        .header-bar .right {
+            display: flex;
+            align-items: center;
+        }
+        .header-bar .icon {
+            margin: 0 10px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .header-bar .icon img {
+            width: 20px;
+            height: 20px;
+        }
+        .header-bar .title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        /* 容器样式 */
+        .container {
+            max-width: 600px;
+            margin: 70px auto 20px; /* 留出顶部固定栏空间 */
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 0%; /* 设置为0，方形头像 */
+            margin-right: 10px;
+        }
+        .header div {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .status {
+            color: green;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+        /* 增加项之间的间距 */
+        .item {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: flex-start; /* 确保所有项左对齐 */
+            align-items: flex-start;
+            gap: 20px; /* 设置统一的间距 */
+        }
+        .item .label {
+            color: #666; /* 灰色字体 */
+            font-weight: normal;
+            flex-shrink: 0; /* 防止标签文字换行 */
+            width: 120px; /* 保证标签的宽度固定 */
+        }
+        .item .value {
+            color: #000; /* 标准字体颜色 */
+            text-align: left; /* 左对齐 */
+            flex: 1;
+            padding-left: 5px; /* 为了避免内容贴边 */
+        }
+        .item.contact {
+            display: flex;
+            justify-content: flex-start; /* 保证内容左对齐 */
+            gap: 20px; /* 设置和其他项一致的间距 */
+            margin: 0; /* 取消外边距 */
+            padding: 0;
+        }
+        .item.contact .label {
+            flex-shrink: 0; /* 防止标签文字换行 */
+            width: 120px; /* 保证标签宽度固定 */
+        }
+        .item.contact .value {
+            text-align: left; /* 左对齐 */
+            flex: 1; /* 让值部分占满剩余空间 */
+            padding-left: 5px;
+        }
+        .approval-process {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+        .approval-process h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .step {
+            margin-bottom: 15px;
+        }
+        .step img {
+            width: 30px;
+            height: 30px;
+            border-radius: 0; /* 设为方形 */
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        .footer {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .button-footer {
+            padding: 10px 20px;
+            text-align: center;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .button-footer.secondary {
+            background-color: #6c757d;
+        }
+        /* 隐藏时间选择器样式 */
+        .datetime-picker {
+            display: none;
+        }
+        /* 确定按钮样式 */
+        .confirm-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        /* 编辑请假理由样式 */
+        .edit-textarea {
+            width: 100%;
+            height: 100px;
+            display: none;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        /* 请假时长和提醒小字样式 */
+        .duration-container {
+            display: flex;
+            flex-direction: column;
+        }
+        .reminder {
+            font-size: 12px;
+            color: #666;  /* 灰色字体 */
+            margin-top: 0; /* 紧贴 */
+        }
+        .reminder .blue-text {
+            color: #007bff; /* 蓝色字体 */
+            cursor: pointer;
+            text-decoration: underline; /* 加下划线 */
+        }
+        /* 新增样式：式字和联系方式间距 */
+        .item .suffix {
+            margin-top: 0; /* 去掉上面空间，紧贴上一行 */
+            color: #666;  /* 灰色字体 */
+            font-size: 14px;
+            text-align: left; /* 确保“式”字与标签内容左对齐 */
+            position: relative;
+            top: -5px; /* 向上移动，调整与上面标签的距离 */
+        }
+        /* 提高说明文本的行距 */
+        .reminder {
+            margin-top: 5px; /* 增加与上一项的行距 */
+        }
+        /* 请假类型点击编辑模式 */
+        .editable {
+            cursor: pointer;
+        }
+        .editable-input {
+            display: none;
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .editable-confirm {
+            display: none;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 固定顶部导航栏 -->
+    <div class="header-bar">
+        <div class="left">
+            <span class="icon">&#60;</span> <!-- 返回箭头 -->
+            <span class="icon"><img src="home-icon.png" alt="主页"></span> <!-- 小房子图标 -->
+        </div>
+        <div class="title">广东建院请假详情</div>
+        <div class="right">
+            <span class="icon"><img src="pdf-icon.png" alt="PDF"></span> <!-- PDF 图标 -->
+            <span class="icon"><img src="share-icon.png" alt="分享"></span> <!-- 分享图标 -->
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- 用户信息 -->
+        <div class="header">
+            <!-- 头像点击修改 -->
+            <label for="user-avatar" class="avatar-label">
+                <img src="user-placeholder.jpg" alt="User Image" id="user-img" class="avatar">
+            </label>
+            <input type="file" id="user-avatar" accept="image/*" style="display: none;" onchange="updateAvatar('user-avatar', 'user-img')">
+            
+            <!-- 可点击编辑文字 -->
+            <span id="user-text" class="editable" onclick="editHeaderText()">
+                <span id="user-main-text">张苗伟的广东建院请假</span>
+                <span id="status-text" class="status">已通过</span>
+            </span>
+            
+            <input type="text" id="user-text-input" class="editable-input" style="display: none;" onchange="updateHeaderText()" />
+            <button id="user-text-confirm" class="editable-confirm" style="display: none;" onclick="confirmHeaderText()">确定</button>
+        </div>
+        
+
+        <!-- 自动生成审批编号 -->
+        <div class="item"><span class="label">审批编号</span><span id="approval-id" class="value"></span></div>
+
+        <!-- 提交时间 -->
+        <div class="item">
+            <span class="label">提交时间</span>
+            <span id="submit-time-text" onclick="toggleTimePicker('submit-time')" class="value">2024/11/21 09:00</span>
+            <input type="datetime-local" id="submit-time" class="datetime-picker" onchange="calculateLeaveDuration()" />
+            <button id="submit-time-confirm" class="confirm-btn" style="display:none" onclick="updateTime('submit-time')">确定</button>
+        </div>
+
+        <!-- 请假类型 -->
+        <div class="item">
+            <span class="label">请假类型</span>
+            <span id="leave-type-text" class="value editable" onclick="toggleLeaveType()">病假</span>
+            <input type="text" id="leave-type-input" class="editable-input" onchange="updateLeaveType()" />
+            <button id="leave-type-confirm" class="editable-confirm" onclick="confirmLeaveType()">确定</button>
+        </div>
+
+        <!-- 请假时间 -->
+        <div class="item">
+            <span class="label">开始时间</span>
+            <span id="start-time-text" onclick="toggleTimePicker('start-time')" class="value">2024/11/21 09:00</span>
+            <input type="datetime-local" id="start-time" class="datetime-picker" onchange="calculateLeaveDuration()" />
+            <button id="start-time-confirm" class="confirm-btn" style="display:none" onclick="updateTime('start-time')">确定</button>
+        </div>
+        <div class="item">
+            <span class="label">结束时间</span>
+            <span id="end-time-text" onclick="toggleTimePicker('end-time')" class="value">2024/11/21 15:30</span>
+            <input type="datetime-local" id="end-time" class="datetime-picker" onchange="calculateLeaveDuration()" />
+            <button id="end-time-confirm" class="confirm-btn" style="display:none" onclick="updateTime('end-time')">确定</button>
+        </div>
+
+        <!-- 请假时长 -->
+        <div class="item">
+            <span class="label">请假时长</span>
+            <div class="duration-container">
+                <span id="leave-duration" class="value">1.5小时</span>
+                <div class="reminder">
+                    当前请假时长为自动计算，<span class="blue-text" onclick="showDurationDetails()">查看时长详细</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 请假理由 -->
+        <div class="item">
+            <span class="label">请假理由</span>
+            <span id="leave-reason-text" class="value" onclick="toggleLeaveReason()">昨晚吃了顿烧烤，半夜三点多胃疼醒，有点肠胃炎的症状，开始打针吃药治疗。</span>
+            <textarea id="leave-reason" class="edit-textarea" onchange="prepareReasonUpdate()">昨晚吃了顿烧烤，半夜三点多胃疼醒，有点肠胃炎的症状，开始打针吃药治疗。</textarea>
+            <button id="leave-reason-confirm" class="confirm-btn" style="display:none" onclick="updateLeaveReason()">确定</button>
+        </div>
+
+        <!-- 是否有课 -->
+        <div class="item">
+            <span class="label">是否有课</span><span class="value">有</span>
+        </div>
+
+        <!-- 添加宿舍号 -->
+        <div class="item">
+            <span class="label">宿舍号</span>
+            <span id="dormitory-text" class="value editable" onclick="toggleDormitory()">21311</span>
+            <input type="text" id="dormitory-input" class="editable-input" onchange="updateDormitory()" />
+            <button id="dormitory-confirm" class="editable-confirm" onclick="confirmDormitory()">确定</button>
+        </div>
+
+        <!-- 添加本人联系方 -->
+        <div class="item contact">
+            <span class="label">本人联系方</span><span id="contact-text" class="value editable" onclick="toggleContact('contact')">13676113155</span>
+            <input type="text" id="contact-input" class="editable-input" onchange="updateContact('contact')" />
+            <button id="contact-confirm" class="editable-confirm" onclick="confirmContact()">确定</button>
+        </div>
+        <div class="suffix" style="color: #666;">式</div>
+
+
+        <!-- 添加家长联系方 -->
+        <div class="item contact">
+            <span class="label">家长联系方</span><span id="parent-contact-text" class="value editable" onclick="toggleContact('parent-contact')">13546863676</span>
+            <input type="text" id="parent-contact-input" class="editable-input" onchange="updateContact('parent-contact')" />
+            <button id="parent-contact-confirm" class="editable-confirm" onclick="confirmParentContact()">确定</button>
+        </div>
+        <div class="suffix" style="color: #666;">式</div>
+
+
+        <!-- 说明文件 -->
+        <div class="item">
+            <span class="label">说明文件</span><span class="value">无</span>
+        </div>
+        
+        <!-- 审批流程 -->
+        <div class="approval-process">
+            <h3>审批流程</h3>
+            <div class="step">
+                <!-- 直接部门负责人 · 已同意 -->
+                <div class="approval-status">直接部门负责人 · 已同意</div>
+        
+                <!-- 张琛头像和名字 -->
+                <label for="approver1-avatar" class="avatar-label">
+                    <img src="approver1-placeholder.jpg" alt="Approver" id="approver1-img" class="avatar">
+                </label>
+                <input type="file" id="approver1-avatar" accept="image/*" style="display: none;" onchange="updateAvatar('approver1-avatar', 'approver1-img')">
+                <span>张琛</span>
+                <div style="font-size: 12px; color: #666;">已同意 · 11/21 07:36</div>
+                
+                <!-- 王兴董头像和名字 -->
+                <label for="approver2-avatar" class="avatar-label">
+                    <img src="approver2-placeholder.jpg" alt="Approver" id="approver2-img" class="avatar">
+                </label>
+                <input type="file" id="approver2-avatar" accept="image/*" style="display: none;" onchange="updateAvatar('approver2-avatar', 'approver2-img')">
+                <span>王兴董</span>
+               
+            </div>
+        
+            <div class="step">
+                <div class="approval-status">抄送人 · 已抄送</div>
+                <!-- 头像和名字 -->
+                <label for="approver2-avatar" class="avatar-label">
+                    <img src="approver2-placeholder.jpg" alt="Approver" id="approver2-img" class="avatar">
+                </label>
+                <input type="file" id="approver3-avatar" accept="image/*" style="display: none;" onchange="updateAvatar('approver2-avatar', 'approver2-img')">
+                <span>王兴董</span> <!-- 王兴董显示在抄送人 -->
+                <div style="font-size: 12px; color: #666;">已抄送 · 11/21 07:36</div>
+            </div>
+        </div>
+        
+        
+
+
+        <!-- 底部按钮 -->
+        <div class="footer">
+            <a href="#" class="button-footer secondary">通过后撤销</a>
+            <a href="#" class="button-footer">再次提交</a>
+        </div>
+    </div>
+
+    <script>
+        // 更新审批编号
+        function generateApprovalId() {
+            const now = new Date();
+            const dateStr = now.getFullYear() + 
+                            ('0' + (now.getMonth() + 1)).slice(-2) + 
+                            ('0' + now.getDate()).slice(-2);
+            const randomDigits = Math.floor(Math.random() * 90000) + 10000;  // 随机五位数字
+            const approvalId = dateStr + randomDigits;
+            document.getElementById("approval-id").innerText = approvalId;
+        }
+        
+        window.onload = generateApprovalId;
+
+        // 时间选择器相关函数
+        function toggleTimePicker(timeType) {
+            const textElement = document.getElementById(`${timeType}-text`);
+            const inputElement = document.getElementById(timeType);
+            const confirmButton = document.getElementById(`${timeType}-confirm`);
+            
+            textElement.style.display = 'none';
+            inputElement.style.display = 'inline-block';
+            confirmButton.style.display = 'inline-block';
+            
+            inputElement.value = textElement.innerText;
+        }
+
+        function updateTime(timeType) {
+            const inputElement = document.getElementById(timeType);
+            const textElement = document.getElementById(`${timeType}-text`);
+            const confirmButton = document.getElementById(`${timeType}-confirm`);
+            
+            const date = new Date(inputElement.value);
+            const formattedDate = date.getFullYear() + '/' + (date.getMonth() + 1).toString().padStart(2, '0') + '/' + date.getDate().toString().padStart(2, '0') + ' ' + date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0');
+            textElement.innerText = formattedDate;
+            
+            inputElement.style.display = 'none';
+            confirmButton.style.display = 'none';
+            textElement.style.display = 'inline-block';
+        }
+
+        // 点击编辑请假类型
+        function toggleLeaveType() {
+            const textElement = document.getElementById('leave-type-text');
+            const inputElement = document.getElementById('leave-type-input');
+            const confirmButton = document.getElementById('leave-type-confirm');
+            
+            textElement.style.display = 'none';
+            inputElement.style.display = 'inline-block';
+            confirmButton.style.display = 'inline-block';
+            
+            inputElement.value = textElement.innerText;
+        }
+
+        function updateLeaveType() {
+            const inputElement = document.getElementById('leave-type-input');
+            const textElement = document.getElementById('leave-type-text');
+            textElement.innerText = inputElement.value;
+        }
+
+        function confirmLeaveType() {
+            updateLeaveType();
+            const inputElement = document.getElementById('leave-type-input');
+            inputElement.style.display = 'none';
+            document.getElementById('leave-type-confirm').style.display = 'none';
+            document.getElementById('leave-type-text').style.display = 'inline-block';
+        }
+
+        // 点击编辑请假理由
+        function toggleLeaveReason() {
+            const textElement = document.getElementById('leave-reason-text');
+            const textarea = document.getElementById('leave-reason');
+            const confirmButton = document.getElementById('leave-reason-confirm');
+            
+            textElement.style.display = 'none';
+            textarea.style.display = 'inline-block';
+            confirmButton.style.display = 'inline-block';
+            
+            textarea.value = textElement.innerText;
+        }
+
+        function updateLeaveReason() {
+            const textarea = document.getElementById('leave-reason');
+            const textElement = document.getElementById('leave-reason-text');
+            textElement.innerText = textarea.value;
+        }
+
+        function confirmLeaveReason() {
+            updateLeaveReason();
+            const textarea = document.getElementById('leave-reason');
+            textarea.style.display = 'none';
+            document.getElementById('leave-reason-confirm').style.display = 'none';
+            document.getElementById('leave-reason-text').style.display = 'inline-block';
+        }
+
+        // 更新宿舍号
+        function toggleDormitory() {
+            const textElement = document.getElementById('dormitory-text');
+            const inputElement = document.getElementById('dormitory-input');
+            const confirmButton = document.getElementById('dormitory-confirm');
+            
+            textElement.style.display = 'none';
+            inputElement.style.display = 'inline-block';
+            confirmButton.style.display = 'inline-block';
+            
+            inputElement.value = textElement.innerText;
+        }
+
+        function updateDormitory() {
+            const inputElement = document.getElementById('dormitory-input');
+            const textElement = document.getElementById('dormitory-text');
+            textElement.innerText = inputElement.value;
+        }
+
+        function confirmDormitory() {
+            updateDormitory();
+            const inputElement = document.getElementById('dormitory-input');
+            inputElement.style.display = 'none';
+            document.getElementById('dormitory-confirm').style.display = 'none';
+            document.getElementById('dormitory-text').style.display = 'inline-block';
+        }
+
+        // 更新本人联系方式
+        function toggleContact(contactType) {
+            const textElement = document.getElementById(`${contactType}-text`);
+            const inputElement = document.getElementById(`${contactType}-input`);
+            const confirmButton = document.getElementById(`${contactType}-confirm`);
+            
+            textElement.style.display = 'none';
+            inputElement.style.display = 'inline-block';
+            confirmButton.style.display = 'inline-block';
+            
+            inputElement.value = textElement.innerText;
+        }
+
+        function updateContact(contactType) {
+            const inputElement = document.getElementById(`${contactType}-input`);
+            const textElement = document.getElementById(`${contactType}-text`);
+            textElement.innerText = inputElement.value;
+        }
+
+        function confirmContact() {
+            updateContact('contact');
+            const inputElement = document.getElementById('contact-input');
+            inputElement.style.display = 'none';
+            document.getElementById('contact-confirm').style.display = 'none';
+            document.getElementById('contact-text').style.display = 'inline-block';
+        }
+
+        // 更新家长联系方式
+        function confirmParentContact() {
+            updateContact('parent-contact');
+            const inputElement = document.getElementById('parent-contact-input');
+            inputElement.style.display = 'none';
+            document.getElementById('parent-contact-confirm').style.display = 'none';
+            document.getElementById('parent-contact-text').style.display = 'inline-block';
+        }
+
+        // 计算请假时长
+        function calculateLeaveDuration() {
+            const startTime = new Date(document.getElementById('start-time').value);
+            const endTime = new Date(document.getElementById('end-time').value);
+            const durationInMillis = endTime - startTime;
+            const durationInHours = (durationInMillis / (1000 * 60 * 60)).toFixed(1);
+            document.getElementById('leave-duration').innerText = `${durationInHours}小时`;
+        }
+
+        // 显示时长详细
+        function showDurationDetails() {
+            alert("时长详细计算逻辑...");
+        }
+        // 更新头像
+function updateAvatar(inputId, imgId) {
+    const fileInput = document.getElementById(inputId);
+    const imgElement = document.getElementById(imgId);
+
+    const file = fileInput.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            imgElement.src = e.target.result;  // 更新头像
+        };
+        reader.readAsDataURL(file);
+    }
+}
+// 更新头像
+function updateAvatar(inputId, imgId) {
+    const fileInput = document.getElementById(inputId);
+    const imgElement = document.getElementById(imgId);
+
+    const file = fileInput.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            imgElement.src = e.target.result;  // 更新头像
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// 编辑标题文字
+function editHeaderText() {
+    const textElement = document.getElementById('user-text');
+    const mainTextElement = document.getElementById('user-main-text');
+    const inputElement = document.getElementById('user-text-input');
+    const confirmButton = document.getElementById('user-text-confirm');
+
+    // 显示输入框，隐藏原文本
+    textElement.style.display = 'none';
+    inputElement.style.display = 'inline-block';
+    confirmButton.style.display = 'inline-block';
+
+    // 将原文本填入输入框
+    inputElement.value = mainTextElement.innerText;
+}
+
+// 更新标题文字
+function updateHeaderText() {
+    const inputElement = document.getElementById('user-text-input');
+    const mainTextElement = document.getElementById('user-main-text');
+    mainTextElement.innerText = inputElement.value;
+}
+
+// 确认更新标题文字
+function confirmHeaderText() {
+    updateHeaderText();
+    const inputElement = document.getElementById('user-text-input');
+    inputElement.style.display = 'none';
+    document.getElementById('user-text-confirm').style.display = 'none';
+    document.getElementById('user-text').style.display = 'inline-block';
+}
+
+    </script>
+    
+</body>
+</html>
