@@ -247,7 +247,7 @@
             
             <!-- 可点击编辑文字 -->
             <span id="user-text" class="editable" onclick="editHeaderText()">
-                <span id="user-main-text">张苗伟的广东建院请假</span>
+                <span id="user-main-text">某某某的广东建院请假</span>
                 <span id="status-text" class="status">已通过</span>
             </span>
             
@@ -303,8 +303,8 @@
         <!-- 请假理由 -->
         <div class="item">
             <span class="label">请假理由</span>
-            <span id="leave-reason-text" class="value" onclick="toggleLeaveReason()">昨晚吃了顿烧烤，半夜三点多胃疼醒，有点肠胃炎的症状，开始打针吃药治疗。</span>
-            <textarea id="leave-reason" class="edit-textarea" onchange="prepareReasonUpdate()">昨晚吃了顿烧烤，半夜三点多胃疼醒，有点肠胃炎的症状，开始打针吃药治疗。</textarea>
+            <span id="leave-reason-text" class="value" onclick="toggleLeaveReason()">对</span>
+            <textarea id="leave-reason" class="edit-textarea" onchange="prepareReasonUpdate()">没错</textarea>
             <button id="leave-reason-confirm" class="confirm-btn" style="display:none" onclick="updateLeaveReason()">确定</button>
         </div>
 
@@ -323,7 +323,7 @@
 
         <!-- 添加本人联系方 -->
         <div class="item contact">
-            <span class="label">本人联系方</span><span id="contact-text" class="value editable" onclick="toggleContact('contact')">13676113155</span>
+            <span class="label">本人联系方</span><span id="contact-text" class="value editable" onclick="toggleContact('contact')">18888888888</span>
             <input type="text" id="contact-input" class="editable-input" onchange="updateContact('contact')" />
             <button id="contact-confirm" class="editable-confirm" onclick="confirmContact()">确定</button>
         </div>
@@ -332,7 +332,7 @@
 
         <!-- 添加家长联系方 -->
         <div class="item contact">
-            <span class="label">家长联系方</span><span id="parent-contact-text" class="value editable" onclick="toggleContact('parent-contact')">13546863676</span>
+            <span class="label">家长联系方</span><span id="parent-contact-text" class="value editable" onclick="toggleContact('parent-contact')">188888888</span>
             <input type="text" id="parent-contact-input" class="editable-input" onchange="updateContact('parent-contact')" />
             <button id="parent-contact-confirm" class="editable-confirm" onclick="confirmParentContact()">确定</button>
         </div>
